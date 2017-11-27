@@ -20,17 +20,14 @@ if 'list_history' not in sc.sticky:
 # 初回だけ距離計算をする/////////////////////////////////////////////////
 # 辞書(キー:曲線のインデックス 値:距離の近いものを順番に並べたリスト)を生成する
 def Findclosestpt(crvs):
-    dict_dist = {}
-    list_midpt = [rs.CurveMidPoint(crv) for crv in crvs]
-    count = 0
-    while count != len(crvs):
-        list_distance = [int(rs.Distance(list_midpt[count], i)) for i in list_midpt]
-        list_sorted = zip(list_distance, range(len(crvs)))
-        list_sorted.sort()
-        list_distance, list_sortindex = zip(*list_sorted)#並べ替えたインデックスを取り出す
-        dict_dist[count] = list_sortindex
-        count += 1
-    return dict_dist
+	dict_dist = {}
+	list_midpt = [rs.CurveMidPoint(crv) for crv in crvs]
+	count = 0
+	while count != len(crvs):
+		list_distance = [int(rs.Distance(list_midpt[count], i)) for i in list_midpt]
+		dict_dist[count] = sorted(range(len(list_distance)), key=lambda k: list_distance[k])
+		count += 1
+	return dict_dist
 
 start = time.time()
 if sc.sticky['count_loop'] == 0:# ここで初回かどうか判断
