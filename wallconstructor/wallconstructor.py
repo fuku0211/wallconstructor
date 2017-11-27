@@ -5,17 +5,17 @@ import Rhino
 import time
 # この中の変数は処理終了後に消えない/////////////////////////////////////////////////
 if 'count_loop' not in sc.sticky:
-    sc.sticky['count_loop'] = 0# 何個目の壁なのか示す数字
+	sc.sticky['count_loop'] = 0# 何個目の壁なのか示す数字
 if 'dict_distance' not in sc.sticky:
-    sc.sticky['dict_distance'] = {}# 下記
+	sc.sticky['dict_distance'] = {}# 下記
 if 'dict_combi' not in sc.sticky:
-    sc.sticky['dict_combi'] = {}# 壁に関する情報を格納する辞書
+	sc.sticky['dict_combi'] = {}# 壁に関する情報を格納する辞書
 if 'count_error' not in sc.sticky:
-    sc.sticky['count_error'] = 0# 
+	sc.sticky['count_error'] = 0# 
 if 'list_usedindex' not in sc.sticky:
-    sc.sticky['list_usedindex'] = []# 使用済みのインデックス
+	sc.sticky['list_usedindex'] = []# 使用済みのインデックス
 if 'list_history' not in sc.sticky:
-    sc.sticky['list_history'] = []# 操作の記録
+	sc.sticky['list_history'] = []# 操作の記録
 
 # 初回だけ距離計算をする/////////////////////////////////////////////////
 # 辞書(キー:曲線のインデックス 値:距離の近いものを順番に並べたリスト)を生成する
@@ -31,22 +31,22 @@ def Findclosestpt(crvs):
 
 start = time.time()
 if sc.sticky['count_loop'] == 0:# ここで初回かどうか判断
-    print("Start Calculate")
-    sc.sticky['dict_distance'] = Findclosestpt(curve)
-    print("End Calculate")
+	print("Start Calculate")
+	sc.sticky['dict_distance'] = Findclosestpt(curve)
+	print("End Calculate")
 
 else:
-    print("Skip Calculate")
+	print("Skip Calculate")
 end = time.time() - start
 print("calculatetime = " + str(end))
 
 # ２つのインデックスを求める/////////////////////////////////////////////////
 for remain in range(len(curve)):
-    if remain in sc.sticky['list_usedindex']:
-        pass
-    else:
-        index_o = remain#２つのうちの片方のインデックス
-        break
+	if remain in sc.sticky['list_usedindex']:
+		pass
+	else:
+		index_o = remain#２つのうちの片方のインデックス
+		break
 list_loft_x = sc.sticky['dict_distance'].values()[index_o]
 index_x = list_loft_x[1 + sc.sticky['count_error']]#もう片方のインデックス
 
@@ -140,44 +140,45 @@ print("previewtime = " + str(end))
 
 # ボタンが押されたときは以下の操作を行う/////////////////////////////////////////////////
 if next:# 次の組み合わせを探す
-    print("Input Key = next")
-    if len(curve) - len(sc.sticky['list_usedindex']) <= 2:
-        bake = True
-        print("Start Bake")
-    else:
-        sc.sticky['count_loop'] += 1
-        sc.sticky['count_error'] = 0
-        sc.sticky['list_usedindex'].append(index_o)
-        sc.sticky['list_usedindex'].append(index_x)
-        sc.sticky['list_history'].append(2)
+	print("Input Key = next")
+	if len(curve) - len(sc.sticky['list_usedindex']) <= 2:
+		bake = True
+		print("Start Bake")
+	else:
+		sc.sticky['count_loop'] += 1
+		sc.sticky['count_error'] = 0
+		sc.sticky['list_usedindex'].append(index_o)
+		sc.sticky['list_usedindex'].append(index_x)
+		sc.sticky['list_history'].append(2)
 
 if loft_o:# ロフト元が違う場合
-    print("Input Key = loft_o")
-    if len(curve) - len(sc.sticky['list_usedindex']) <= 2:
-        bake = True
-        print("Start Bake")
-    else:
-        sc.sticky['list_usedindex'].append(index_o)
-        del sc.sticky['dict_combi'][sc.sticky['count_loop']]
-        sc.sticky['count_loop'] += 1
-        sc.sticky['count_error'] = 0
-        sc.sticky['list_history'].append(1)
+	print("Input Key = loft_o")
+	if len(curve) - len(sc.sticky['list_usedindex']) <= 2:
+		bake = True
+		print("Start Bake")
+	else:
+		sc.sticky['list_usedindex'].append(index_o)
+		del sc.sticky['dict_combi'][sc.sticky['count_loop']]
+		sc.sticky['count_loop'] += 1
+		sc.sticky['count_error'] = 0
+		sc.sticky['list_history'].append(1)
 
 if loft_x:# ロフト先が違う場合
-    print("Input Key = loft_x")
-    del sc.sticky['dict_combi'][sc.sticky['count_loop']]
-    if sc.sticky['count_error'] == len(list_loft_x) - 2:
-        sc.sticky['count_error'] = 0
-    elif sc.sticky['count_error'] == 14:
-        sc.sticky['count_error'] = 0
-    else:
-        sc.sticky['count_error'] += 1
+	print("Input Key = loft_x")
+	del sc.sticky['dict_combi'][sc.sticky['count_loop']]
+	if sc.sticky['count_error'] == len(list_loft_x) - 2:
+		sc.sticky['count_error'] = 0
+	elif sc.sticky['count_error'] == 14:# 15個目の候補まで表示
+		sc.sticky['count_error'] = 0
+	else:
+		sc.sticky['count_error'] += 1
 
 def Undo():# アンドゥ
 	print("Input Key = Undo")
 	if sc.sticky['count_loop'] == 0:
 		sc.sticky['list_usedindex'] = []
 		sc.sticky['list_history'] = []
+		sc.sticky['count_error'] = 0
 		
 	else:
 		if sc.sticky['list_history'][-1] == 2:
@@ -185,9 +186,11 @@ def Undo():# アンドゥ
 			del sc.sticky['dict_combi'][sc.sticky['count_loop'] - 1]
 			del sc.sticky['list_usedindex'][-1]
 			del sc.sticky['list_usedindex'][-1]
+
 		else:
 			del sc.sticky['list_usedindex'][-1]
 		del sc.sticky['list_history'][-1]
+		sc.sticky['count_error'] = 0
 		sc.sticky['count_loop'] = sc.sticky['count_loop'] - 1
 
 if undo:
