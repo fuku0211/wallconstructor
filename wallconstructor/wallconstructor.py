@@ -3,6 +3,7 @@ import rhinoscriptsyntax as rs
 import scriptcontext as sc
 import Rhino
 import time
+import gc
 # この中の変数は処理終了後に消えない/////////////////////////////////////////////////
 if 'count_loop' not in sc.sticky:
 	sc.sticky['count_loop'] = 0# 何個目の壁なのか示す数字
@@ -11,7 +12,7 @@ if 'dict_distance' not in sc.sticky:
 if 'dict_combi' not in sc.sticky:
 	sc.sticky['dict_combi'] = {}# 壁に関する情報を格納する辞書
 if 'count_error' not in sc.sticky:
-	sc.sticky['count_error'] = 0# 
+	sc.sticky['count_error'] = 0# ×の曲線が違う時に数字が増える
 if 'list_usedindex' not in sc.sticky:
 	sc.sticky['list_usedindex'] = []# 使用済みのインデックス
 if 'list_history' not in sc.sticky:
@@ -146,8 +147,10 @@ if next:# 次の組み合わせを探す
 	else:
 		sc.sticky['count_loop'] += 1
 		sc.sticky['count_error'] = 0
-		sc.sticky['list_usedindex'].append(index_o)
-		sc.sticky['list_usedindex'].append(index_x)
+		if data.get_o() not in sc.sticky['list_usedindex']:# 使用済みインデックスが重複しないように
+			sc.sticky['list_usedindex'].append(data.get_o())
+		if data.get_x() not in sc.sticky['list_usedindex']:
+			sc.sticky['list_usedindex'].append(data.get_x())
 		sc.sticky['list_history'].append(2)
 
 if loft_o:# ロフト元が違う場合
@@ -204,6 +207,7 @@ def Reset():# リセットするときの挙動
 	sc.sticky['preview'] = []
 	sc.sticky['list_usedindex'] = []
 	sc.sticky['list_history'] = []
+	gc.collect()# メモリ解放
 
 if bake:# ベイクする
 	print("Input Key = bake")
@@ -220,6 +224,7 @@ if bake:# ベイクする
 		rs.ObjectLayer(rhino_obj, doc_layer)
 		sc.doc = ghdoc
 	Reset()
+
 O = data.ind_o
 X = data.ind_x
 count_error = "✕は" + str(sc.sticky['count_error'] + 1) + "番目の候補です"
