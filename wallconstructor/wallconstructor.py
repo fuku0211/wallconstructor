@@ -209,7 +209,7 @@ if bake:# ベイクする
 	print("Input Key = bake")
 	obj_bake = [Previewwall(sc.sticky["dict_combi"], i, curve, zoom) for i in sc.sticky["dict_combi"]]
 	sc.doc = Rhino.RhinoDoc.ActiveDoc
-	doc_layer = rs.GetLayer()# ベイクするレイヤーを選択
+	doc_layer = rs.GetLayer("ベイク先のレイヤーを選択", None, True, True)# ベイクするレイヤーを選択
 	sc.doc = ghdoc
 	for wall in obj_bake:
 		doc_obj = rs.coercerhinoobject(wall)
@@ -220,7 +220,6 @@ if bake:# ベイクする
 		rs.ObjectLayer(rhino_obj, doc_layer)
 		sc.doc = ghdoc
 	Reset()
-
 O = data.ind_o
 X = data.ind_x
 count_error = "✕は" + str(sc.sticky['count_error'] + 1) + "番目の候補です"
