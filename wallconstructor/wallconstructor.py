@@ -125,7 +125,6 @@ def Previewmark(crvs, dict, index):# 線の目印を作る
 start = time.time()
 if next or loft_o or loft_x or undo or bake == True:# ボタンを押した瞬間はプレビュー省略
 	print("preview pass")
-	pass
 else:
 	if past == False:# 最後の壁だけ表示
 		print("preview only one")
@@ -209,12 +208,16 @@ def Reset():# リセットするときの挙動
 if bake:# ベイクする
 	print("Input Key = bake")
 	obj_bake = [Previewwall(sc.sticky["dict_combi"], i, curve, zoom) for i in sc.sticky["dict_combi"]]
+	sc.doc = Rhino.RhinoDoc.ActiveDoc
+	doc_layer = rs.GetLayer()# ベイクするレイヤーを選択
+	sc.doc = ghdoc
 	for wall in obj_bake:
 		doc_obj = rs.coercerhinoobject(wall)
 		doc_attributes = doc_obj.Attributes
 		doc_geometry = doc_obj.Geometry
 		sc.doc = Rhino.RhinoDoc.ActiveDoc
 		rhino_obj = sc.doc.Objects.Add(doc_geometry, doc_attributes)
+		rs.ObjectLayer(rhino_obj, doc_layer)
 		sc.doc = ghdoc
 	Reset()
 
